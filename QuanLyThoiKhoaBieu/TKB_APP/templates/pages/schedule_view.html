@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>View Schedule</title>
+    <style>
+        /* Add custom CSS for better table styling */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        a{
+          text-decoration: none;
+          color: black
+          
+        }
+        div{
+          padding: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>Thời Khóa Biểu</h1>
+    <div class="table-responsive">
+        <table class="table table-bordered">
+            <thead>
+                <tr role="row">
+                    <th>Ca học</th>
+                    <th>Thứ 2</th>
+                    <th>Thứ 3</th>
+                    <th>Thứ 4</th>
+                    <th>Thứ 5</th>
+                    <th>Thứ 6</th>
+                    <th>Thứ 7</th>
+                    <th>Chủ nhật</th>
+                  </tr>
+            </thead>
+            <tbody>
+                <tr role="row">
+                  <td style="height:150px" lang="lichtheotuan-buoisang"><b>Sáng</b></td>
+                  <td style="height:150px">
+                    {% for tkb in timetable %}
+                      {% if tkb.thoi_gian.GioBatDau.hour < 12 and tkb.ngay_trong_tuan == 'Thứ Hai' %}
+                      {% if tkb.id %}
+                      <div style="background-color: #c9d0db;border-radius: 0.25rem;">
+                        <a href="{% url 'suaThoiKhoaBieu' tkb.id %}">
+                          <strong>Môn: {{ tkb.lop_hoc_phan.mon_hoc.TenMonHoc }}<br></strong>
+                      </a>
+                      Tiết: {{ tkb.thoi_gian.TietTrongKhungGio }}<br>
+                      Phòng: {{ tkb.lop_hoc_phan.phong_hoc.TenPhongHoc }}<br>
+                      GV: {{ tkb.lop_hoc_phan.giang_vien.TenGiangVien }}<br>
+                      </div>
+                      <br>
+                {% endif %}
+                      {% endif %}
+                    {% endfor %}
+                  </td>
+                  <td style="height:150px">
+                    {% for tkb in timetable %}
+                      {% if tkb.thoi_gian.GioBatDau.hour < 12 and tkb.ngay_trong_tuan == 'Thứ Ba' %}
+                      {% if tkb.id %}
+                      <div style="background-color: #c9d0db;border-radius: 0.25rem;">
+                        <a href="{% url 'suaThoiKhoaBieu' tkb.id %}">
+                          <strong>Môn: {{ tkb.lop_hoc_phan.mon_hoc.TenMonHoc }}<br></strong>
+                      </a>
+                      Tiết: {{ tkb.thoi_gian.TietTrongKhungGio }}<br>
+                      Phòng: {{ tkb.lop_hoc_phan.phong_hoc.TenPhongHoc }}<br>
+                      GV: {{ tkb.lop_hoc_phan.giang_vien.TenGiangVien }}<br>
+                      </div>
+                      <br>
+                  {% endif %}
+                      {% endif %}
+                    {% endfor %}
+                  </td>
+                  <td style="height:150px">
+                    {% for tkb in timetable %}
+                      {% if tkb.thoi_gian.GioBatDau.hour < 12 and tkb.ngay_trong_tuan == 'Thứ Tư' %}
+                      {% if tkb.id %}
+                      <div style="background-color: #c9d0db;border-radius: 0.25rem;">
+                        <a href="{% url 'suaThoiKhoaBieu' tkb.id %}">
+                          <strong>Môn: {{ tkb.lop_hoc_phan.mon_hoc.TenMonHoc }}<br></strong>
+                      </a>
+                      Tiết: {{ tkb.thoi_gian.TietTrongKhungGio }}<br>
+                      Phòng: {{ tkb.lop_hoc_phan.phong_hoc.TenPhongHoc }}<br>
+                      GV: {{ tkb.lop_hoc_phan.giang_vien.TenGiangVien }}<br>
+                      </div>
+                      <br>
+                  {% endif %}
+                      {% endif %}
+                    {% endfor %}
+                  </td>
+                  <td style="height:150px">
+                    {% for tkb in timetable %}
+                      {% if tkb.thoi_gian.GioBatDau.hour < 12 and tkb.ngay_trong_tuan == 'Thứ Năm' %}
+                      {% if tkb.id %}
+                      <div style="background-color: #c9d0db;border-radius: 0.25rem;">
+                        <a href="{% url 'suaThoiKhoaBieu' tkb.id %}">
+                          <strong>Môn: {{ tkb.lop_hoc_phan.mon_hoc.TenMonHoc }}<br></strong>
+                      </a>
+                      Tiết: {{ tkb.thoi_gian.TietTrongKhungGio }}<br>
+                      Phòng: {{ tkb.lop_hoc_phan.phong_hoc.TenPhongHoc }}<br>
+                      GV: {{ tkb.lop_hoc_phan.giang_vien.TenGiangVien }}<br>
+                      </div>
+                      <br>
+                {% endif %}
+                      {% endif %}
+                    {% endfor %}
+                  </td>
+                  <td style="height:150px">
+                    {% for tkb in timetable %}
+                      {% if tkb.thoi_gian.GioBatDau.hour < 12 and tkb.ngay_trong_tuan == 'Thứ Sáu' %}
+                      {% if tkb.id %}
+                      <div style="background-color: #c9d0db;border-radius: 0.25rem;">
+                        <a href="{% url 'suaThoiKhoaBieu' tkb.id %}">
+                          <strong>Môn: {{ tkb.lop_hoc_phan.mon_hoc.TenMonHoc }}<br></strong>
+                      </a>
+                      Tiết: {{ tkb.thoi_gian.TietTrongKhungGio }}<br>
+                      Phòng: {{ tkb.lop_hoc_phan.phong_hoc.TenPhongHoc }}<br>
+                      GV: {{ tkb.lop_hoc_phan.giang_vien.TenGiangVien }}<br>
+                      </div>
+                      <br>
+                {% endif %}
+                      {% endif %}
+                    {% endfor %}
+                  </td>
+                  <td style="height:150px">
+                    {% for tkb in timetable %}
+                      {% if tkb.thoi_gian.GioBatDau.hour < 12 and tkb.ngay_trong_tuan == 'Thứ Bảy' %}
+                      {% if tkb.id %}
+                      <div style="background-color: #c9d0db;border-radius: 0.25rem;">
+                        <a href="{% url 'suaThoiKhoaBieu' tkb.id %}">
+                          <strong>Môn: {{ tkb.lop_hoc_phan.mon_hoc.TenMonHoc }}<br></strong>
+                      </a>
+                      Tiết: {{ tkb.thoi_gian.TietTrongKhungGio }}<br>
+                      Phòng: {{ tkb.lop_hoc_phan.phong_hoc.TenPhongHoc }}<br>
+                      GV: {{ tkb.lop_hoc_phan.giang_vien.TenGiangVien }}<br>
+                      </div>
+                      <br>
+                {% endif %}
+                      {% endif %}
+                    {% endfor %}
+                  </td>
+                  <td style="height:150px">
+                    {% for tkb in timetable %}
+                      {% if tkb.thoi_gian.GioBatDau.hour < 12 and tkb.ngay_trong_tuan == 'Chủ Nhất' %}
+                      {% if tkb.id %}
+                      <div style="background-color: #c9d0db;border-radius: 0.25rem;">
+                        <a href="{% url 'suaThoiKhoaBieu' tkb.id %}">
+                          <strong>Môn: {{ tkb.lop_hoc_phan.mon_hoc.TenMonHoc }}<br></strong>
+                      </a>
+                      Tiết: {{ tkb.thoi_gian.TietTrongKhungGio }}<br>
+                      Phòng: {{ tkb.lop_hoc_phan.phong_hoc.TenPhongHoc }}<br>
+                      GV: {{ tkb.lop_hoc_phan.giang_vien.TenGiangVien }}<br>
+                      </div>
+                      <br>
+                {% endif %}
+                      {% endif %}
+                    {% endfor %}
+                  </td>
+                </tr>
+                <tr role="row">
+                    <td style="height:250px" lang="lichtheotuan-buoisang"><b>Chiểu</b></td>
+                    <td style="height:150px">
+                      {% for tkb in timetable %}
+                        {% if tkb.thoi_gian.GioBatDau.hour >= 12 and tkb.ngay_trong_tuan == 'Thứ Hai' %}
+                        {% if tkb.id %}
+                        <div style="background-color: #c9d0db;border-radius: 0.25rem;">
+                          <a href="{% url 'suaThoiKhoaBieu' tkb.id %}">
+                            <strong>Môn: {{ tkb.lop_hoc_phan.mon_hoc.TenMonHoc }}<br></strong>
+                        </a>
+                        Tiết: {{ tkb.thoi_gian.TietTrongKhungGio }}<br>
+                        Phòng: {{ tkb.lop_hoc_phan.phong_hoc.TenPhongHoc }}<br>
+                        GV: {{ tkb.lop_hoc_phan.giang_vien.TenGiangVien }}<br>
+                        </div>
+                        <br>
+                {% endif %}
+                        {% endif %}
+                      {% endfor %}
+                    </td>
+                    <td style="height:150px">
+                      {% for tkb in timetable %}
+                        {% if tkb.thoi_gian.GioBatDau.hour >= 12 and tkb.ngay_trong_tuan == 'Thứ Ba' %}
+                        {% if tkb.id %}
+                        <div style="background-color: #c9d0db;border-radius: 0.25rem;">
+                          <a href="{% url 'suaThoiKhoaBieu' tkb.id %}">
+                            <strong>Môn: {{ tkb.lop_hoc_phan.mon_hoc.TenMonHoc }}<br></strong>
+                        </a>
+                        Tiết: {{ tkb.thoi_gian.TietTrongKhungGio }}<br>
+                        Phòng: {{ tkb.lop_hoc_phan.phong_hoc.TenPhongHoc }}<br>
+                        GV: {{ tkb.lop_hoc_phan.giang_vien.TenGiangVien }}<br>
+                        </div>
+                        <br>
+                {% endif %}
+                        {% endif %}
+                      {% endfor %}
+                    </td>
+                    <td style="height:150px">
+                      {% for tkb in timetable %}
+                        {% if tkb.thoi_gian.GioBatDau.hour >= 12 and tkb.ngay_trong_tuan == 'Thứ Tư' %}
+                        {% if tkb.id %}
+                        <div style="background-color: #c9d0db;border-radius: 0.25rem;">
+                          <a href="{% url 'suaThoiKhoaBieu' tkb.id %}">
+                            <strong>Môn: {{ tkb.lop_hoc_phan.mon_hoc.TenMonHoc }}<br></strong>
+                        </a>
+                        Tiết: {{ tkb.thoi_gian.TietTrongKhungGio }}<br>
+                        Phòng: {{ tkb.lop_hoc_phan.phong_hoc.TenPhongHoc }}<br>
+                        GV: {{ tkb.lop_hoc_phan.giang_vien.TenGiangVien }}<br>
+                        </div>
+                        <br>
+                {% endif %}
+                        {% endif %}
+                      {% endfor %}
+                    </td>
+                    <td style="height:150px">
+                      {% for tkb in timetable %}
+                        {% if tkb.thoi_gian.GioBatDau.hour >= 12 and tkb.ngay_trong_tuan == 'Thứ Năm' %}
+                        {% if tkb.id %}
+                        <div style="background-color: #c9d0db;border-radius: 0.25rem;">
+                          <a href="{% url 'suaThoiKhoaBieu' tkb.id %}">
+                            <strong>Môn: {{ tkb.lop_hoc_phan.mon_hoc.TenMonHoc }}<br></strong>
+                        </a>
+                        Tiết: {{ tkb.thoi_gian.TietTrongKhungGio }}<br>
+                        Phòng: {{ tkb.lop_hoc_phan.phong_hoc.TenPhongHoc }}<br>
+                        GV: {{ tkb.lop_hoc_phan.giang_vien.TenGiangVien }}<br>
+                        </div>
+                        <br>
+                {% endif %}
+                        {% endif %}
+                      {% endfor %}
+                    </td>
+                    <td style="height:150px">
+                      {% for tkb in timetable %}
+                          {% if tkb.thoi_gian.GioBatDau.hour >= 12 and tkb.ngay_trong_tuan == 'Thứ Sáu' %}
+                            {% if tkb.id %}
+                            <div style="background-color: #c9d0db;border-radius: 0.25rem;">
+                              <a href="{% url 'suaThoiKhoaBieu' tkb.id %}">
+                                <strong>Môn: {{ tkb.lop_hoc_phan.mon_hoc.TenMonHoc }}<br></strong>
+                            </a>
+                            Tiết: {{ tkb.thoi_gian.TietTrongKhungGio }}<br>
+                            Phòng: {{ tkb.lop_hoc_phan.phong_hoc.TenPhongHoc }}<br>
+                            GV: {{ tkb.lop_hoc_phan.giang_vien.TenGiangVien }}<br>
+                            </div>
+                            <br>
+                            {% endif %}
+                          {% endif %}
+                      {% endfor %}
+                    </td>
+                    <td style="height:150px">
+                      {% for tkb in timetable %}
+                          {% if tkb.thoi_gian.GioBatDau.hour >= 12 and tkb.ngay_trong_tuan == 'Thứ Bảy' %}
+                            {% if tkb.id %}
+                            <div style="background-color: #c9d0db;border-radius: 0.25rem;">
+                              <a href="{% url 'suaThoiKhoaBieu' tkb.id %}">
+                                <strong>Môn: {{ tkb.lop_hoc_phan.mon_hoc.TenMonHoc }}<br></strong>
+                            </a>
+                            Tiết: {{ tkb.thoi_gian.TietTrongKhungGio }}<br>
+                            Phòng: {{ tkb.lop_hoc_phan.phong_hoc.TenPhongHoc }}<br>
+                            GV: {{ tkb.lop_hoc_phan.giang_vien.TenGiangVien }}<br>
+                            </div>
+                            <br>
+                            {% endif %}
+                          {% endif %}
+                      {% endfor %}
+                    </td>
+                    <td style="height:150px">
+                      {% for tkb in timetable %}
+                          {% if tkb.thoi_gian.GioBatDau.hour >= 12 and tkb.ngay_trong_tuan == 'Chủ Nhất' %}
+                              {% if tkb.lop_hoc_phan.id %}
+                              <div style="background-color: #c9d0db;border-radius: 0.25rem;">
+                                <a href="{% url 'suaThoiKhoaBieu' tkb.id %}">
+                                  <strong>Môn: {{ tkb.lop_hoc_phan.mon_hoc.TenMonHoc }}<br></strong>
+                              </a>
+                              Tiết: {{ tkb.thoi_gian.TietTrongKhungGio }}<br>
+                              Phòng: {{ tkb.lop_hoc_phan.phong_hoc.TenPhongHoc }}<br>
+                              GV: {{ tkb.lop_hoc_phan.giang_vien.TenGiangVien }}<br>
+                              </div>
+                              <br>
+                              {% endif %}
+                          {% endif %}
+                      {% endfor %}
+                    </td>
+                  </tr>
+  
+        </table>
+    </div>
+</body>
+</html>
