@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Thời Khóa Biểu</title>
+    <style>
+        /* Custom CSS for better table styling */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+
+        a {
+            text-decoration: none;
+            color: black;
+        }
+
+        div {
+            padding: auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .morning, .afternoon, .evening {
+            background-color: #eaf3ff;
+            border-radius: 0.25rem;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+        }
+
+        /* Additional styling to match the provided image */
+        tbody tr td {
+            height: 150px;
+            vertical-align: top;
+        }
+
+        td b {
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        th, td:first-child {
+            background-color: #fffacd; /* Pale yellow background for time slots */
+            font-weight: bold;
+            text-align: center;
+        }
+
+        tbody td {
+            text-align: left;
+            vertical-align: top;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Thời Khóa Biểu</h1>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-bordered">
+            <thead>
+                <tr role="row">
+                    <th>Ca học</th>
+                    {% for day in days_of_week %}
+                    <th>{{ day }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                <tr role="row">
+                    <td><b>Sáng</b></td>
+                    {% for day in days_of_week %}
+                    <td style="height:150px">
+                        {% for tkb in timetable %}
+                            {% if tkb.thoi_gian.GioBatDau.hour < 12 and tkb.ngay_trong_tuan == day %}
+                                <div class="morning">
+                                    <a href="#">
+                                        <strong>Môn: {{ tkb.lop_hoc_phan.mon_hoc.TenMonHoc }}<br></strong>
+                                    </a>
+                                    Tiết: {{ tkb.thoi_gian.TietTrongKhungGio }}<br>
+                                    Phòng: {{ tkb.lop_hoc_phan.phong_hoc.TenPhongHoc }}<br>
+                                    GV: {{ tkb.lop_hoc_phan.giang_vien.TenGiangVien }}<br>
+                                </div>
+                                <br>
+                            {% endif %}
+                        {% endfor %}
+                    </td>
+                    {% endfor %}
+                </tr>
+                <tr role="row">
+                    <td><b>Chiều</b></td>
+                    {% for day in days_of_week %}
+                    <td style="height:150px">
+                        {% for tkb in timetable %}
+                            {% if tkb.thoi_gian.GioBatDau.hour >= 12 and tkb.ngay_trong_tuan == day %}
+                                <div class="afternoon">
+                                    <a href="#">
+                                        <strong>Môn: {{ tkb.lop_hoc_phan.mon_hoc.TenMonHoc }}<br></strong>
+                                    </a>
+                                    Tiết: {{ tkb.thoi_gian.TietTrongKhungGio }}<br>
+                                    Phòng: {{ tkb.lop_hoc_phan.phong_hoc.TenPhongHoc }}<br>
+                                    GV: {{ tkb.lop_hoc_phan.giang_vien.TenGiangVien }}<br>
+                                </div>
+                                <br>
+                            {% endif %}
+                        {% endfor %}
+                    </td>
+                    {% endfor %}
+                </tr>
+                <tr role="row">
+                    <td><b>Tối</b></td>
+                    {% for day in days_of_week %}
+                    <td style="height:150px">
+                        {% for tkb in timetable %}
+                            {% if tkb.thoi_gian.GioBatDau.hour >= 18 and tkb.ngay_trong_tuan == day %}
+                                <div class="afternoon">
+                                    <a href="#">
+                                        <strong>Môn: {{ tkb.lop_hoc_phan.mon_hoc.TenMonHoc }}<br></strong>
+                                    </a>
+                                    Tiết: {{ tkb.thoi_gian.TietTrongKhungGio }}<br>
+                                    Phòng: {{ tkb.lop_hoc_phan.phong_hoc.TenPhongHoc }}<br>
+                                    GV: {{ tkb.lop_hoc_phan.giang_vien.TenGiangVien }}<br>
+                                </div>
+                                <br>
+                            {% endif %}
+                        {% endfor %}
+                    </td>
+                    {% endfor %}
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>
