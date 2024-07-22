@@ -1,96 +1,74 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>View Schedule</title>
-    <style>
-        /* Add custom CSS for better table styling */
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        th, td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: left;
-        }
-        th {
-            background-color: #f2f2f2;
-        }
-        a {
-            text-decoration: none;
-            color: black;
-        }
-        div {
-            padding: auto;
-        }
-    </style>
-</head>
+{% extends "pages/layout.html" %}
+
+{% block title %}
+Thời Khóa Biểu
+{% endblock %}
+{% load static %}
+{% block content %}
+<style>
+    /* Add custom CSS for better table styling */
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    th, td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+    }
+    th {
+        background-color: #f2f2f2;
+    }
+    a {
+        text-decoration: none;
+        color: black;
+    }
+    div {
+        padding: auto;
+    }
+    /* CSS for the loading bar */
+    .loading-container {
+        width: 100%;
+        background-color: #f3f3f3;
+        margin-top: 20px;
+        display: none; /* Hidden by default */
+    }
+    .loading-bar {
+        width: 0%;
+        height: 30px;
+        background-color: #4caf50;
+        text-align: center;
+        line-height: 30px;
+        color: white;
+    }
+</style>
 <body>
-    <h1>Thời Khóa Biểu</h1>
-    <form method="post" action="{% url 'load_schedule' %}">
+    <center><h1>Thời Khóa Biểu</h1></center>
+    <form method="post" action="{% url 'load_schedule' %}" onsubmit="startLoading()">
         {% csrf_token %}
         <button type="submit">Load Thời Khóa Biểu</button>
     </form>
-    
-    {% if timetable %}
-    <div class="table-responsive">
-        <table class="table table-bordered">
-            <thead>
-                <tr role="row">
-                    <th>Ca học</th>
-                    <th>Thứ 2</th>
-                    <th>Thứ 3</th>
-                    <th>Thứ 4</th>
-                    <th>Thứ 5</th>
-                    <th>Thứ 6</th>
-                    <th>Thứ 7</th>
-                    <th>Chủ nhật</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr role="row">
-                    <td style="height:150px" lang="lichtheotuan-buoisang"><b>Sáng</b></td>
-                    {% for day in days_of_week %}
-                    <td style="height:150px">
-                        {% for tkb in timetable %}
-                            {% if tkb.thoi_gian.GioBatDau.hour < 12 and tkb.ngay_trong_tuan == day %}
-                            <div style="background-color: #c9d0db;border-radius: 0.25rem;">
-                                <a href="#">
-                                    <strong>Môn: {{ tkb.lop_hoc_phan.mon_hoc.TenMonHoc }}<br></strong>
-                                </a>
-                                Tiết: {{ tkb.thoi_gian.TietTrongKhungGio }}<br>
-                                Phòng: {{ tkb.lop_hoc_phan.phong_hoc.TenPhongHoc }}<br>
-                                GV: {{ tkb.lop_hoc_phan.giang_vien.TenGiangVien }}<br>
-                            </div>
-                            <br>
-                            {% endif %}
-                        {% endfor %}
-                    </td>
-                    {% endfor %}
-                </tr>
-                <tr role="row">
-                    <td style="height:250px" lang="lichtheotuan-buoisang"><b>Chiều</b></td>
-                    {% for day in days_of_week %}
-                    <td style="height:150px">
-                        {% for tkb in timetable %}
-                            {% if tkb.thoi_gian.GioBatDau.hour >= 12 and tkb.ngay_trong_tuan == day %}
-                            <div style="background-color: #c9d0db;border-radius: 0.25rem;">
-                                <a href="#">
-                                    <strong>Môn: {{ tkb.lop_hoc_phan.mon_hoc.TenMonHoc }}<br></strong>
-                                </a>
-                                Tiết: {{ tkb.thoi_gian.TietTrongKhungGio }}<br>
-                                Phòng: {{ tkb.lop_hoc_phan.phong_hoc.TenPhongHoc }}<br>
-                                GV: {{ tkb.lop_hoc_phan.giang_vien.TenGiangVien }}<br>
-                            </div>
-                            <br>
-                            {% endif %}
-                        {% endfor %}
-                    </td>
-                    {% endfor %}
-                </tr>
-            </tbody>
-        </table>
+    <br>
+    <div class="loading-container" id="loadingContainer">
+        <div class="loading-bar" id="loadingBar">0%</div>
     </div>
-    {% endif %}
+
+    <script>
+        function startLoading() {
+            var loadingContainer = document.getElementById('loadingContainer');
+            var loadingBar = document.getElementById('loadingBar');
+            loadingContainer.style.display = 'block';
+            var width = 0;
+            var interval = setInterval(function() {
+                if (width >= 100) {
+                    clearInterval(interval);
+                } else {
+                    width++;
+                    loadingBar.style.width = width + '%';
+                    loadingBar.innerHTML = width + '%';
+                }
+            }, 30); // Đổi tốc độ thanh tải nếu cần
+        }
+    </script>
 </body>
-</html>
+{% endblock %}
