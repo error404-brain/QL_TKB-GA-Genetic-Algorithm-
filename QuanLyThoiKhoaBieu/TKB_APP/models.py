@@ -29,7 +29,9 @@ class LopHocPhan(models.Model):
     giang_vien = models.ForeignKey(GiangVien, on_delete=models.CASCADE)
     phong_hoc = models.ForeignKey(PhongHoc, on_delete=models.CASCADE)
     SiSo = models.IntegerField()
-    
+    NgayBatDau = models.DateField()
+    NgayKetThuc = models.DateField()
+
     def __str__(self):
         return f"{self.mon_hoc} - {self.giang_vien}"
 
@@ -47,4 +49,4 @@ class ThoiKhoaBieu(models.Model):
     ngay_trong_tuan = models.CharField(max_length=10)
 
     def __str__(self):
-        return f"{self.lop_hoc_phan} - {self.thoi_gian}"
+        return f"{self.lop_hoc_phan} - {self.thoi_gian} - {self.ngay_trong_tuan}"
