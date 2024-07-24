@@ -1,8 +1,10 @@
-from django.shortcuts import redirect, render
+from django.shortcuts import get_object_or_404, redirect, render
 from .models import GiangVien, MonHoc, PhongHoc, LopHocPhan, TietHoc, ThoiKhoaBieu
-from datetime import date, timedelta
+from datetime import timedelta, date, datetime
+from django.utils import timezone
 import random
 from .utils import load_giang_vien_from_csv, load_mon_hoc_from_csv, load_phong_hoc_from_csv, load_lop_hoc_phan_from_csv, load_tiet_hoc_from_csv
+
 
 # Danh sách các ngày lễ chỉ với tháng và ngày
 HOLIDAYS = [
@@ -110,14 +112,66 @@ def load_schedule_view(request):
                 ngay_trong_tuan=ngay_trong_tuan.strftime('%A')  # Lưu ngày trong tuần dưới dạng chuỗi
             )
         # Chuyển hướng đến trang hiển thị thời khóa biểu
-        return redirect('show_tkb')
+        return redirect('find_tkb_by_id')
     
     else:
         # Hiển thị trang nạp dữ liệu (có thể là một form để người dùng nhấn nút POST)
         return render(request, 'pages/schedule.html')
 
+
+
 def show_tkb(request):
-    # Lấy tất cả dữ liệu thời khóa biểu
     timetable = ThoiKhoaBieu.objects.all()
     days_of_week = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
     return render(request, 'pages/show_schedule.html', {'timetable': timetable, 'days_of_week': days_of_week})
+
+
+def find_tkb_by_id(request):
+    giang_vien_s = GiangVien.objects.all()
+    giang_vien_id = request.GET.get('giang_vien_id')
+    start_date_str = request.GET.get('start_date')
+    next_week = request.GET.get('next_week', 'false') == 'true'
+    prev_week = request.GET.get('prev_week','false') == 'true'
+    if request.method == 'POST':
+        giang_vien_id = request.POST.get('giang_vien_id')
+        start_date_str = request.POST.get('start_date')
+    
+    if giang_vien_id:
+        giang_vien = get_object_or_404(GiangVien, id=giang_vien_id)
+        lop_hoc_phan_s = LopHocPhan.objects.filter(giang_vien=giang_vien)
+
+        if not lop_hoc_phan_s.exists():
+            return render(request, 'pages/find_TKB.html', {
+                'giang_viens': giang_vien_s, 
+                'error': 'Không có lớp học phần nào cho giảng viên này.'
+            })
+        
+        if not start_date_str:
+            start_date = lop_hoc_phan_s.earliest('NgayBatDau').NgayBatDau
+        else:
+            start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
+            if next_week:
+                start_date += timedelta(weeks=1)
+            if prev_week:
+                start_date -= timedelta(weeks=1)
+
+        start_date_of_week = start_date - timedelta(days=start_date.weekday())
+        days_of_week =  ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+        days_of_weeks = {days_of_week[i]: start_date_of_week + timedelta(days=i) for i in range(7)}
+
+        timetable = ThoiKhoaBieu.objects.filter(
+            lop_hoc_phan__giang_vien=giang_vien,
+            lop_hoc_phan__NgayBatDau__lte=start_date_of_week + timedelta(days=6),
+            lop_hoc_phan__NgayKetThuc__gte=start_date_of_week
+        )
+
+        return render(request, 'pages/show_schedule.html', {
+            'timetable': timetable,
+            'days_of_weeks': days_of_weeks,
+            'start_date_of_week': start_date_of_week,
+            'giang_vien': giang_vien,
+            'giang_vien_id': giang_vien_id,
+            'start_date': start_date.strftime('%Y-%m-%d')
+        })
+
+    return render(request, 'pages/find_TKB.html', {'giang_viens': giang_vien_s})
