@@ -3,7 +3,7 @@ from .models import GiangVien, MonHoc, PhongHoc, LopHocPhan, TietHoc, ThoiKhoaBi
 from datetime import timedelta, date, datetime
 from django.utils import timezone
 import random
-from .utils import load_giang_vien_from_csv, load_mon_hoc_from_csv, load_phong_hoc_from_csv, load_lop_hoc_phan_from_csv, load_tiet_hoc_from_csv
+from .utils import load_giang_vien_from_csv, load_mon_hoc_from_csv, load_phong_hoc_from_csv, load_lop_hoc_phan_from_csv, load_tiet_hoc_from_csv,writing_thoiKhoaBieu_csv
 
 
 # Danh sách các ngày lễ chỉ với tháng và ngày
