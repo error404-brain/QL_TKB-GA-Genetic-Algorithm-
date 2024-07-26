@@ -60,6 +60,20 @@ def load_tiet_hoc_from_csv():
                 GioKetThuc=row['GioKetThuc']
             )
 
+def writing_thoiKhoaBieu_csv():
+    fieldnames = ['LopHocPhan', 'ThoiGian', 'NgayTrongTuan']
+    with open('QuanLyThoiKhoaBieu/TKB_APP/CSV/thoiKhoaBieu.csv', 'w', newline='', encoding='utf-8') as file:
+        writer = csv.DictWriter(file, fieldnames=fieldnames)
+        writer.writeheader()
+        thoi_khoa_bieu_list = ThoiKhoaBieu.objects.all()
+        for tkb in thoi_khoa_bieu_list:
+            writer.writerow({
+                'LopHocPhan': str(tkb.lop_hoc_phan),
+                'ThoiGian': str(tkb.thoi_gian),
+                'NgayTrongTuan': tkb.ngay_trong_tuan,
+            })
+         
+
 def check_schedule_conflict(thoi_khoa_bieu):
     existing_entries = ThoiKhoaBieu.objects.filter(
         thoi_gian=thoi_khoa_bieu.thoi_gian,

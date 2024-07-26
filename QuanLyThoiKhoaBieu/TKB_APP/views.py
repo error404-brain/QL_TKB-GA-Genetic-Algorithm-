@@ -164,7 +164,7 @@ def find_tkb_by_id(request):
             lop_hoc_phan__NgayBatDau__lte=start_date_of_week + timedelta(days=6),
             lop_hoc_phan__NgayKetThuc__gte=start_date_of_week
         )
-
+        writing_thoiKhoaBieu_csv()
         return render(request, 'pages/show_schedule.html', {
             'timetable': timetable,
             'days_of_weeks': days_of_weeks,
