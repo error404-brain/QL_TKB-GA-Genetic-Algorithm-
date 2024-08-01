@@ -61,7 +61,7 @@ def load_tiet_hoc_from_csv():
             )
 
 def writing_thoiKhoaBieu_csv():
-    fieldnames = ['LopHocPhan', 'ThoiGian', 'NgayTrongTuan']
+    fieldnames = ['LopHocPhan', 'ThoiGian', 'NgayTrongTuan', 'Ngay']
     with open('QuanLyThoiKhoaBieu/TKB_APP/CSV/thoiKhoaBieu.csv', 'w', newline='', encoding='utf-8') as file:
         writer = csv.DictWriter(file, fieldnames=fieldnames)
         writer.writeheader()
@@ -71,7 +71,9 @@ def writing_thoiKhoaBieu_csv():
                 'LopHocPhan': str(tkb.lop_hoc_phan),
                 'ThoiGian': str(tkb.thoi_gian),
                 'NgayTrongTuan': tkb.ngay_trong_tuan,
+                'Ngay': tkb.ngay.strftime('%Y-%m-%d')
             })
+
          
 
 def check_schedule_conflict(thoi_khoa_bieu):

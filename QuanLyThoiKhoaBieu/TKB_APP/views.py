@@ -1,10 +1,11 @@
+import calendar
 from django.shortcuts import get_object_or_404, redirect, render
 from .models import GiangVien, MonHoc, PhongHoc, LopHocPhan, TietHoc, ThoiKhoaBieu
 from datetime import timedelta, date, datetime
 from django.utils import timezone
 import random
-from .utils import load_giang_vien_from_csv, load_mon_hoc_from_csv, load_phong_hoc_from_csv, load_lop_hoc_phan_from_csv, load_tiet_hoc_from_csv,writing_thoiKhoaBieu_csv
-
+from .utils import load_giang_vien_from_csv, load_mon_hoc_from_csv, load_phong_hoc_from_csv, load_lop_hoc_phan_from_csv, load_tiet_hoc_from_csv, writing_thoiKhoaBieu_csv
+from django.db import transaction
 
 # Danh sách các ngày lễ chỉ với tháng và ngày
 HOLIDAYS = [
@@ -91,6 +92,7 @@ def genetic_algorithm(generations=100, population_size=100):
     best_individual = max(population, key=lambda x: fitness(x))
     return best_individual
 
+
 def load_schedule_view(request):
     if request.method == 'POST':
         # Xóa dữ liệu cũ
@@ -106,18 +108,24 @@ def load_schedule_view(request):
         best_schedule = genetic_algorithm()
         # Lưu thời khóa biểu vào cơ sở dữ liệu
         for lop_hoc_phan, tiet_hoc, ngay_trong_tuan in best_schedule:
-            ThoiKhoaBieu.objects.create(
-                lop_hoc_phan=lop_hoc_phan,
-                thoi_gian=tiet_hoc,
-                ngay_trong_tuan=ngay_trong_tuan.strftime('%A')  # Lưu ngày trong tuần dưới dạng chuỗi
-            )
-        # Chuyển hướng đến trang hiển thị thời khóa biểu
+            current_date = lop_hoc_phan.NgayBatDau
+            while current_date <= lop_hoc_phan.NgayKetThuc:
+                if current_date.strftime('%A') == ngay_trong_tuan.strftime('%A'):
+                    ThoiKhoaBieu.objects.create(
+                        lop_hoc_phan=lop_hoc_phan,
+                        thoi_gian=tiet_hoc,
+                        ngay_trong_tuan=ngay_trong_tuan.strftime('%A'),  # Lưu ngày trong tuần dưới dạng chuỗi
+                        ngay=current_date  # Lưu ngày cụ thể
+                    )
+                current_date += timedelta(days=1)
+        
+        # Ghi thời khóa biểu vào file CSV
+        writing_thoiKhoaBieu_csv()
         return redirect('find_tkb_by_id')
     
     else:
-        # Hiển thị trang nạp dữ liệu (có thể là một form để người dùng nhấn nút POST)
         return render(request, 'pages/schedule.html')
-
+     
 
 
 def show_tkb(request):
@@ -157,6 +165,7 @@ def find_tkb_by_id(request):
 
         start_date_of_week = start_date - timedelta(days=start_date.weekday())
         days_of_week =  ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+
         days_of_weeks = {days_of_week[i]: start_date_of_week + timedelta(days=i) for i in range(7)}
 
         timetable = ThoiKhoaBieu.objects.filter(
@@ -164,7 +173,7 @@ def find_tkb_by_id(request):
             lop_hoc_phan__NgayBatDau__lte=start_date_of_week + timedelta(days=6),
             lop_hoc_phan__NgayKetThuc__gte=start_date_of_week
         )
-        writing_thoiKhoaBieu_csv()
+
         return render(request, 'pages/show_schedule.html', {
             'timetable': timetable,
             'days_of_weeks': days_of_weeks,

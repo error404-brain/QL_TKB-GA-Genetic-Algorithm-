@@ -113,6 +113,20 @@
             text-decoration: none;
             font-weight: bold;
         }
+
+        .update-button {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 5px 10px;
+            background-color: #007bff;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 4px;
+        }
+
+        .update-button:hover {
+            background-color: #0056b3;
+        }
     </style>
 </head>
 <body>
@@ -147,7 +161,7 @@
                     {% for d, dd in days_of_weeks.items %}
                         <td style="height:150px">
                             {% for tkb in timetable %}
-                                {% if tkb.thoi_gian.GioBatDau.hour < 12 and tkb.ngay_trong_tuan == d %}
+                                {% if tkb.thoi_gian.GioBatDau.hour < 12 and tkb.ngay_trong_tuan == d and tkb.ngay == dd %}
                                     <div class="morning">
                                         <a href="#" class="course-link">
                                             <strong>Môn: {{ tkb.lop_hoc_phan.mon_hoc.TenMonHoc }}<br></strong>
@@ -155,6 +169,8 @@
                                         Tiết: {{ tkb.thoi_gian.TietTrongKhungGio }}<br>
                                         Phòng: {{ tkb.lop_hoc_phan.phong_hoc.TenPhongHoc }}<br>
                                         GV: {{ tkb.lop_hoc_phan.giang_vien.TenGiangVien }}<br>
+                                        ID: {{ tkb.id }}<br>
+                                        
                                     </div>
                                     <br>
                                 {% endif %}
@@ -167,7 +183,7 @@
                     {% for d, dd in days_of_weeks.items %}
                         <td style="height:150px">
                             {% for tkb in timetable %}
-                                {% if tkb.thoi_gian.GioBatDau.hour >= 12 and tkb.thoi_gian.GioBatDau.hour < 18 and tkb.ngay_trong_tuan == d %}
+                                {% if tkb.thoi_gian.GioBatDau.hour >= 12 and tkb.thoi_gian.GioBatDau.hour < 18 and tkb.ngay_trong_tuan == d and tkb.ngay == dd%}
                                     <div class="afternoon">
                                         <a href="#" class="course-link">
                                             <strong>Môn: {{ tkb.lop_hoc_phan.mon_hoc.TenMonHoc }}<br></strong>
@@ -175,6 +191,8 @@
                                         Tiết: {{ tkb.thoi_gian.TietTrongKhungGio }}<br>
                                         Phòng: {{ tkb.lop_hoc_phan.phong_hoc.TenPhongHoc }}<br>
                                         GV: {{ tkb.lop_hoc_phan.giang_vien.TenGiangVien }}<br>
+                                        ID: {{ tkb.id }}<br>
+                                       
                                     </div>
                                     <br>
                                 {% endif %}
@@ -187,7 +205,7 @@
                     {% for d, dd in days_of_weeks.items %}
                         <td style="height:150px">
                             {% for tkb in timetable %}
-                                {% if tkb.thoi_gian.GioBatDau.hour >= 18 and tkb.ngay_trong_tuan == d %}
+                                {% if tkb.thoi_gian.GioBatDau.hour >= 18 and tkb.ngay_trong_tuan == d and tkb.ngay == dd%}
                                     <div class="evening">
                                         <a href="#" class="course-link">
                                             <strong>Môn: {{ tkb.lop_hoc_phan.mon_hoc.TenMonHoc }}<br></strong>
@@ -195,6 +213,8 @@
                                         Tiết: {{ tkb.thoi_gian.TietTrongKhungGio }}<br>
                                         Phòng: {{ tkb.lop_hoc_phan.phong_hoc.TenPhongHoc }}<br>
                                         GV: {{ tkb.lop_hoc_phan.giang_vien.TenGiangVien }}<br>
+                                        ID: {{ tkb.id }}<br>
+                                        
                                     </div>
                                     <br>
                                 {% endif %}

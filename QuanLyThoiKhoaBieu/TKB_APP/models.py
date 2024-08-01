@@ -43,10 +43,11 @@ class TietHoc(models.Model):
     def __str__(self):
         return self.TietTrongKhungGio
 
+
 class ThoiKhoaBieu(models.Model):
     lop_hoc_phan = models.ForeignKey(LopHocPhan, on_delete=models.CASCADE)
     thoi_gian = models.ForeignKey(TietHoc, on_delete=models.CASCADE)
     ngay_trong_tuan = models.CharField(max_length=10)
-
+    ngay = models.DateField()
     def __str__(self):
-        return f"{self.lop_hoc_phan} - {self.thoi_gian} - {self.ngay_trong_tuan}"
+        return f"{self.lop_hoc_phan} - {self.thoi_gian} - {self.ngay_trong_tuan} - {self.ngay}"
