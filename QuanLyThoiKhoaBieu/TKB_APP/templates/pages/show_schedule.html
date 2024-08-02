@@ -162,16 +162,15 @@
                         <td style="height:150px">
                             {% for tkb in timetable %}
                                 {% if tkb.thoi_gian.GioBatDau.hour < 12 and tkb.ngay_trong_tuan == d and tkb.ngay == dd %}
-                                    <div class="morning">
-                                        <a href="#" class="course-link">
+                                    <a href="{% url 'update_schedule' tkb.id %}" class="course-link">
+                                        <div class="morning">
                                             <strong>Môn: {{ tkb.lop_hoc_phan.mon_hoc.TenMonHoc }}<br></strong>
-                                        </a>
-                                        Tiết: {{ tkb.thoi_gian.TietTrongKhungGio }}<br>
-                                        Phòng: {{ tkb.lop_hoc_phan.phong_hoc.TenPhongHoc }}<br>
-                                        GV: {{ tkb.lop_hoc_phan.giang_vien.TenGiangVien }}<br>
-                                        ID: {{ tkb.id }}<br>
-                                        
-                                    </div>
+                                            Tiết: {{ tkb.thoi_gian.TietTrongKhungGio }}<br>
+                                            Phòng: {{ tkb.lop_hoc_phan.phong_hoc.TenPhongHoc }}<br>
+                                            GV: {{ tkb.lop_hoc_phan.giang_vien.TenGiangVien }}<br>
+                                            ID: {{ tkb.id }}<br>
+                                        </div>
+                                    </a>
                                     <br>
                                 {% endif %}
                             {% endfor %}
@@ -183,17 +182,16 @@
                     {% for d, dd in days_of_weeks.items %}
                         <td style="height:150px">
                             {% for tkb in timetable %}
-                                {% if tkb.thoi_gian.GioBatDau.hour >= 12 and tkb.thoi_gian.GioBatDau.hour < 18 and tkb.ngay_trong_tuan == d and tkb.ngay == dd%}
-                                    <div class="afternoon">
-                                        <a href="#" class="course-link">
+                                {% if tkb.thoi_gian.GioBatDau.hour >= 12 and tkb.thoi_gian.GioBatDau.hour < 18 and tkb.ngay_trong_tuan == d and tkb.ngay == dd %}
+                                    <a href="{% url 'update_schedule' tkb.id %}" class="course-link">
+                                        <div class="afternoon">
                                             <strong>Môn: {{ tkb.lop_hoc_phan.mon_hoc.TenMonHoc }}<br></strong>
-                                        </a>
-                                        Tiết: {{ tkb.thoi_gian.TietTrongKhungGio }}<br>
-                                        Phòng: {{ tkb.lop_hoc_phan.phong_hoc.TenPhongHoc }}<br>
-                                        GV: {{ tkb.lop_hoc_phan.giang_vien.TenGiangVien }}<br>
-                                        ID: {{ tkb.id }}<br>
-                                       
-                                    </div>
+                                            Tiết: {{ tkb.thoi_gian.TietTrongKhungGio }}<br>
+                                            Phòng: {{ tkb.lop_hoc_phan.phong_hoc.TenPhongHoc }}<br>
+                                            GV: {{ tkb.lop_hoc_phan.giang_vien.TenGiangVien }}<br>
+                                            ID: {{ tkb.id }}<br>
+                                        </div>
+                                    </a>
                                     <br>
                                 {% endif %}
                             {% endfor %}
@@ -205,17 +203,16 @@
                     {% for d, dd in days_of_weeks.items %}
                         <td style="height:150px">
                             {% for tkb in timetable %}
-                                {% if tkb.thoi_gian.GioBatDau.hour >= 18 and tkb.ngay_trong_tuan == d and tkb.ngay == dd%}
-                                    <div class="evening">
-                                        <a href="#" class="course-link">
+                                {% if tkb.thoi_gian.GioBatDau.hour >= 18 and tkb.ngay_trong_tuan == d and tkb.ngay == dd %}
+                                    <a href="{% url 'update_schedule' tkb.id %}" class="course-link">
+                                        <div class="evening">
                                             <strong>Môn: {{ tkb.lop_hoc_phan.mon_hoc.TenMonHoc }}<br></strong>
-                                        </a>
-                                        Tiết: {{ tkb.thoi_gian.TietTrongKhungGio }}<br>
-                                        Phòng: {{ tkb.lop_hoc_phan.phong_hoc.TenPhongHoc }}<br>
-                                        GV: {{ tkb.lop_hoc_phan.giang_vien.TenGiangVien }}<br>
-                                        ID: {{ tkb.id }}<br>
-                                        
-                                    </div>
+                                            Tiết: {{ tkb.thoi_gian.TietTrongKhungGio }}<br>
+                                            Phòng: {{ tkb.lop_hoc_phan.phong_hoc.TenPhongHoc }}<br>
+                                            GV: {{ tkb.lop_hoc_phan.giang_vien.TenGiangVien }}<br>
+                                            ID: {{ tkb.id }}<br>
+                                        </div>
+                                    </a>
                                     <br>
                                 {% endif %}
                             {% endfor %}

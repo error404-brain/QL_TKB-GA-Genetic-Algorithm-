@@ -133,13 +133,13 @@ def show_tkb(request):
     days_of_week = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
     return render(request, 'pages/show_schedule.html', {'timetable': timetable, 'days_of_week': days_of_week})
 
-
 def find_tkb_by_id(request):
     giang_vien_s = GiangVien.objects.all()
     giang_vien_id = request.GET.get('giang_vien_id')
     start_date_str = request.GET.get('start_date')
     next_week = request.GET.get('next_week', 'false') == 'true'
     prev_week = request.GET.get('prev_week','false') == 'true'
+    
     if request.method == 'POST':
         giang_vien_id = request.POST.get('giang_vien_id')
         start_date_str = request.POST.get('start_date')
@@ -184,3 +184,27 @@ def find_tkb_by_id(request):
         })
 
     return render(request, 'pages/find_TKB.html', {'giang_viens': giang_vien_s})
+
+
+
+
+def update_schedule_view(request, schedule_id):
+    schedule_entry = get_object_or_404(ThoiKhoaBieu, id=schedule_id)
+    tiet_hoc_list = TietHoc.objects.all()
+
+    if request.method == 'POST':
+        new_date_str = request.POST.get('new_date')
+        new_tiet_hoc_id = request.POST.get('new_tiet_hoc')
+        if new_date_str and new_tiet_hoc_id:
+            new_date = datetime.strptime(new_date_str, '%Y-%m-%d').date()
+            new_tiet_hoc = get_object_or_404(TietHoc, id=new_tiet_hoc_id)
+            schedule_entry.ngay = new_date
+            schedule_entry.ngay_trong_tuan = new_date.strftime('%A')
+            schedule_entry.thoi_gian = new_tiet_hoc
+            schedule_entry.save()
+            return redirect('find_tkb_by_id')  # Redirect to the page showing the updated schedule
+
+    return render(request, 'pages/update_schedule.html', {
+        'schedule_entry': schedule_entry,
+        'tiet_hoc_list': tiet_hoc_list
+    })
