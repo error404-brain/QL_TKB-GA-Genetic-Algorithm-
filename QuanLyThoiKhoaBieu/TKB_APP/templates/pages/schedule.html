@@ -32,6 +32,9 @@ Thời Khóa Biểu
         background-color: #f3f3f3;
         margin-top: 20px;
         display: none; /* Hidden by default */
+        display: flex;
+        justify-content: center; /* Center horizontally */
+        align-items: center; /* Center vertically */
     }
     .loading-bar {
         width: 0%;
@@ -41,12 +44,16 @@ Thời Khóa Biểu
         line-height: 30px;
         color: white;
     }
+    .submit{
+        text-align:center;
+        padding:30px;
+    }
 </style>
 <body>
     <center><h1>Thời Khóa Biểu</h1></center>
-    <form method="post" action="{% url 'load_schedule' %}" onsubmit="startLoading()">
+    <form class="submit" method="post" action="{% url 'load_schedule' %}" onsubmit="startLoading()">
         {% csrf_token %}
-        <button type="submit">Load Thời Khóa Biểu</button>
+        <button  type="submit">Load Thời Khóa Biểu</button>
     </form>
     <br>
     <div class="loading-container" id="loadingContainer">
