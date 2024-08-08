@@ -1,83 +1,99 @@
-import calendar
+from datetime import datetime, timedelta
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
-from .models import GiangVien, MonHoc, PhongHoc, LopHocPhan, TietHoc, ThoiKhoaBieu
+from .models import GiangVien, LopHocPhan, TietHoc, ThoiKhoaBieu
 from datetime import timedelta, date, datetime
 from django.utils import timezone
 import random
-from .utils import load_giang_vien_from_csv, load_mon_hoc_from_csv, load_phong_hoc_from_csv, load_lop_hoc_phan_from_csv, load_tiet_hoc_from_csv, writing_thoiKhoaBieu_csv
-from django.db import transaction
+from .forms import ThoiKhoaBieuForm
+from .utils import load_giang_vien_from_csv, load_mon_hoc_from_csv, load_phong_hoc_from_csv, load_lop_hoc_phan_from_csv, load_tiet_hoc_from_csv,writing_thoiKhoaBieu_csv
+from django.db.models import Q
 
-# Danh sách các ngày lễ chỉ với tháng và ngày
 HOLIDAYS = [
-    (1, 1),   # Ngày 1 tháng 1
-    (2, 14),  # Ngày 14 tháng 2
-    (3, 8),   # Ngày 8 tháng 3
-    (4, 30),  # Ngày 30 tháng 4
-    (5, 1),   # Ngày 1 tháng 5
-    # Thêm các ngày lễ khác tại đây
+    (1, 1),
+    (2, 14),
+    (3, 8),
+    (4, 30),
+    (5, 1),
 ]
 
-# Hàm kiểm tra ngày lễ
 def is_holiday(day):
     return (day.month, day.day) in HOLIDAYS
 
-# Tìm ngày học tiếp theo không trùng ngày lễ
 def find_next_available_day(day):
     while is_holiday(day):
         day += timedelta(days=1)
     return day
 
-# Khởi tạo cá thể
 def create_individual():
     individual = []
+    schedule = {}
     for lop_hoc_phan in LopHocPhan.objects.all():
-        if lop_hoc_phan.NgayKetThuc >= date.today():
-            tiet_hoc = random.choice(TietHoc.objects.all())
-            ngay_trong_tuan = random.choice(["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"])
-            # Chuyển đổi ngày trong tuần thành ngày thực tế
-            ngay_trong_tuan = date.today() + timedelta(days=(["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"].index(ngay_trong_tuan) - date.today().weekday()))
-            ngay_trong_tuan = find_next_available_day(ngay_trong_tuan)
-            individual.append((lop_hoc_phan, tiet_hoc, ngay_trong_tuan))
+        if lop_hoc_phan.NgayKetThuc >= timezone.now().date():
+            while True:
+                tiet_hoc = random.choice(TietHoc.objects.all())
+                ngay_trong_tuan = random.choice(["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"])
+                ngay_trong_tuan = timezone.now().date() + timedelta(days=(["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"].index(ngay_trong_tuan) - timezone.now().date().weekday()))
+                ngay_trong_tuan = find_next_available_day(ngay_trong_tuan)
+                key = (lop_hoc_phan.phong_hoc, tiet_hoc, ngay_trong_tuan)
+                gv_key = (lop_hoc_phan.giang_vien, tiet_hoc, ngay_trong_tuan)
+                
+                if key not in schedule and gv_key not in schedule:
+                    schedule[key] = lop_hoc_phan
+                    schedule[gv_key] = lop_hoc_phan
+                    individual.append((lop_hoc_phan, tiet_hoc, ngay_trong_tuan))
+                    break
+                else:
+                    tiet_hoc = random.choice(TietHoc.objects.all())
     return individual
 
-# Hàm đánh giá (fitness)
 def fitness(individual):
     score = 0
     schedule = {}
     for lop_hoc_phan, tiet_hoc, ngay_trong_tuan in individual:
         key = (lop_hoc_phan.phong_hoc, tiet_hoc, ngay_trong_tuan)
+        gv_key = (lop_hoc_phan.giang_vien, tiet_hoc, ngay_trong_tuan)
+        
         if key not in schedule:
             schedule[key] = lop_hoc_phan
+            score += 1
         else:
-            score -= 1  # Phòng học bị trùng
-        if (lop_hoc_phan.giang_vien, tiet_hoc, ngay_trong_tuan) in schedule.values():
-            score -= 1  # Giảng viên bị trùng
+            score -= 1
+        
+        if gv_key not in schedule:
+            schedule[gv_key] = lop_hoc_phan
+            score += 1
+        else:
+            score -= 1
     return score
 
-# Chọn lọc (selection)
 def selection(population):
     population.sort(key=lambda x: fitness(x), reverse=True)
     return population[:len(population)//2]
 
-# Lai ghép (crossover)
 def crossover(parent1, parent2):
     index = random.randint(0, len(parent1)-1)
     child1 = parent1[:index] + parent2[index:]
     child2 = parent2[:index] + parent1[index:]
     return child1, child2
 
-# Đột biến (mutation)
 def mutate(individual):
     index = random.randint(0, len(individual)-1)
     lop_hoc_phan, tiet_hoc, ngay_trong_tuan = individual[index]
-    tiet_hoc = random.choice(TietHoc.objects.all())
-    ngay_trong_tuan = random.choice(["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"])
-    ngay_trong_tuan = date.today() + timedelta(days=(["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"].index(ngay_trong_tuan) - date.today().weekday()))
-    ngay_trong_tuan = find_next_available_day(ngay_trong_tuan)
-    individual[index] = (lop_hoc_phan, tiet_hoc, ngay_trong_tuan)
+    
+    while True:
+        tiet_hoc = random.choice(TietHoc.objects.all())
+        ngay_trong_tuan = random.choice(["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"])
+        ngay_trong_tuan = timezone.now().date() + timedelta(days=(["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"].index(ngay_trong_tuan) - timezone.now().date().weekday()))
+        ngay_trong_tuan = find_next_available_day(ngay_trong_tuan)
+        key = (lop_hoc_phan.phong_hoc, tiet_hoc, ngay_trong_tuan)
+        gv_key = (lop_hoc_phan.giang_vien, tiet_hoc, ngay_trong_tuan)
+        
+        if key not in [ind[:2] for ind in individual] and gv_key not in [ind[:2] for ind in individual]:
+            individual[index] = (lop_hoc_phan, tiet_hoc, ngay_trong_tuan)
+            break
 
-# Thuật toán di truyền
-def genetic_algorithm(generations=100, population_size=100):
+def genetic_algorithm(generations=10, population_size=10):
     population = [create_individual() for _ in range(population_size)]
     for generation in range(generations):
         population = selection(population)
@@ -92,46 +108,39 @@ def genetic_algorithm(generations=100, population_size=100):
     best_individual = max(population, key=lambda x: fitness(x))
     return best_individual
 
-
 def load_schedule_view(request):
     if request.method == 'POST':
-        # Xóa dữ liệu cũ
         LopHocPhan.objects.all().delete()
         ThoiKhoaBieu.objects.all().delete()
-        # Load data từ các tệp CSV
         load_giang_vien_from_csv()
         load_mon_hoc_from_csv()
         load_phong_hoc_from_csv()
         load_lop_hoc_phan_from_csv()
         load_tiet_hoc_from_csv()
-        # Sắp xếp thời khóa biểu
         best_schedule = genetic_algorithm()
-        # Lưu thời khóa biểu vào cơ sở dữ liệu
         for lop_hoc_phan, tiet_hoc, ngay_trong_tuan in best_schedule:
             current_date = lop_hoc_phan.NgayBatDau
             while current_date <= lop_hoc_phan.NgayKetThuc:
                 if current_date.strftime('%A') == ngay_trong_tuan.strftime('%A'):
+                    current_date = find_next_available_day(current_date)
                     ThoiKhoaBieu.objects.create(
                         lop_hoc_phan=lop_hoc_phan,
                         thoi_gian=tiet_hoc,
-                        ngay_trong_tuan=ngay_trong_tuan.strftime('%A'),  # Lưu ngày trong tuần dưới dạng chuỗi
-                        ngay=current_date  # Lưu ngày cụ thể
+                        ngay_trong_tuan=ngay_trong_tuan.strftime('%A'),
+                        ngay_thuc_te=current_date
                     )
                 current_date += timedelta(days=1)
-        
-        # Ghi thời khóa biểu vào file CSV
         writing_thoiKhoaBieu_csv()
         return redirect('find_tkb_by_id')
-    
     else:
         return render(request, 'pages/schedule.html')
-     
 
 
 def show_tkb(request):
     timetable = ThoiKhoaBieu.objects.all()
     days_of_week = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
     return render(request, 'pages/show_schedule.html', {'timetable': timetable, 'days_of_week': days_of_week})
+
 
 def find_tkb_by_id(request):
     giang_vien_s = GiangVien.objects.all()
@@ -184,27 +193,156 @@ def find_tkb_by_id(request):
         })
 
     return render(request, 'pages/find_TKB.html', {'giang_viens': giang_vien_s})
+    
+
+
+def check_schedule_conflict(thoi_khoa_bieu):
+    # Kiểm tra xung đột về phòng học
+    phong_hoc_conflict = ThoiKhoaBieu.objects.filter(
+        Q(thoi_gian=thoi_khoa_bieu.thoi_gian) &
+        Q(ngay_trong_tuan=thoi_khoa_bieu.ngay_trong_tuan) &
+        Q(lop_hoc_phan__phong_hoc=thoi_khoa_bieu.lop_hoc_phan.phong_hoc)& 
+        Q(ngay_thuc_te=thoi_khoa_bieu.ngay_thuc_te)
+    ).exclude(id=thoi_khoa_bieu.id).first()
+
+    # Kiểm tra xung đột về giáo viên
+    giang_vien_conflict = ThoiKhoaBieu.objects.filter(
+        Q(thoi_gian=thoi_khoa_bieu.thoi_gian) &
+        Q(ngay_trong_tuan=thoi_khoa_bieu.ngay_trong_tuan) &
+        Q(lop_hoc_phan__giang_vien=thoi_khoa_bieu.lop_hoc_phan.giang_vien)& 
+        Q(ngay_thuc_te=thoi_khoa_bieu.ngay_thuc_te)
+    ).exclude(id=thoi_khoa_bieu.id).first()
+
+    # Kiểm tra xung đột về lớp học
+    lop_hoc_conflict = ThoiKhoaBieu.objects.filter(
+        Q(thoi_gian=thoi_khoa_bieu.thoi_gian) &
+        Q(ngay_trong_tuan=thoi_khoa_bieu.ngay_trong_tuan) &
+        Q(lop_hoc_phan=thoi_khoa_bieu.lop_hoc_phan)&
+        Q(ngay_thuc_te=thoi_khoa_bieu.ngay_thuc_te)
+    ).exclude(id=thoi_khoa_bieu.id).first()
+
+    if phong_hoc_conflict:
+        return f'Phòng học "{phong_hoc_conflict.lop_hoc_phan.phong_hoc}" đã bị trùng vào thời gian {phong_hoc_conflict.thoi_gian} ngày {phong_hoc_conflict.ngay_trong_tuan}.'
+    if giang_vien_conflict:
+        return f'Giáo viên "{giang_vien_conflict.lop_hoc_phan.giang_vien}" đã bị trùng vào thời gian {giang_vien_conflict.thoi_gian} ngày {giang_vien_conflict.ngay_trong_tuan}.'
+    if lop_hoc_conflict:
+        return f'Lớp học "{lop_hoc_conflict.lop_hoc_phan}" đã bị trùng vào thời gian {lop_hoc_conflict.thoi_gian} ngày {lop_hoc_conflict.ngay_trong_tuan}.'
+    
+    return None
 
 
 
 
-def update_schedule_view(request, schedule_id):
-    schedule_entry = get_object_or_404(ThoiKhoaBieu, id=schedule_id)
-    tiet_hoc_list = TietHoc.objects.all()
+
+
+
+def calculate_real_date(start_date, day_of_week):
+    if isinstance(start_date, datetime):
+        start_date = start_date.date()
+    # Ensure the start_date is the beginning of the week
+    start_date_of_week = start_date - timedelta(days=start_date.weekday())
+    # List of days of the week in the correct order
+    days_of_week = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+    # Validate the input day_of_week
+    if day_of_week not in days_of_week:
+        raise ValueError(f"'{day_of_week}' is not a valid day of the week")
+    # Calculate the exact date of the given day_of_week in the target week
+    desired_date = start_date_of_week + timedelta(days=days_of_week.index(day_of_week))
+    return desired_date
+
+
+
+
+
+#ĐỔI TOÀN BỘ TẤT CẢ LICH HỌC THEO THỨ
+def edit_schedule(request, thoi_khoa_bieu_id):
+    thoi_khoa_bieu = get_object_or_404(ThoiKhoaBieu, id=thoi_khoa_bieu_id)
+
+    # Xác định giá trị của start_date từ GET hoặc POST request
+    start_date_str = request.GET.get('start_date') or request.POST.get('start_date')
+    if start_date_str:
+        start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
+    else:
+        start_date = thoi_khoa_bieu.lop_hoc_phan.NgayBatDau
 
     if request.method == 'POST':
+        form = ThoiKhoaBieuForm(request.POST, instance=thoi_khoa_bieu)
+        edit_choice = request.POST.get('edit_choice')
+        next_week = request.POST.get('next_week', 'false') == 'true'
+        prev_week = request.POST.get('prev_week', 'false') == 'true'
         new_date_str = request.POST.get('new_date')
-        new_tiet_hoc_id = request.POST.get('new_tiet_hoc')
-        if new_date_str and new_tiet_hoc_id:
-            new_date = datetime.strptime(new_date_str, '%Y-%m-%d').date()
-            new_tiet_hoc = get_object_or_404(TietHoc, id=new_tiet_hoc_id)
-            schedule_entry.ngay = new_date
-            schedule_entry.ngay_trong_tuan = new_date.strftime('%A')
-            schedule_entry.thoi_gian = new_tiet_hoc
-            schedule_entry.save()
-            return redirect('find_tkb_by_id')  # Redirect to the page showing the updated schedule
 
-    return render(request, 'pages/update_schedule.html', {
-        'schedule_entry': schedule_entry,
-        'tiet_hoc_list': tiet_hoc_list
+       
+
+        if form.is_valid():
+            temp_thoi_khoa_bieu = form.save(commit=False)               
+            # Xử lý ngày thực tế từ form
+            ngay_thuc_te_str = request.POST.get('ngay_thuc_te')
+            if ngay_thuc_te_str:
+                try:
+                    temp_thoi_khoa_bieu.ngay_thuc_te = datetime.strptime(ngay_thuc_te_str, '%Y-%m-%d').date()
+                except ValueError:
+                    form.add_error('ngay_thuc_te', 'Ngày thực tế không hợp lệ')
+
+            # Xử lý ngày trong tuần từ form
+            ngay_trong_tuan_str = request.POST.get('ngay_trong_tuan')
+            if ngay_trong_tuan_str:
+                try:
+                    temp_thoi_khoa_bieu.ngay_trong_tuan = ngay_trong_tuan_str
+                    # Update ngay_thuc_te based on ngay_trong_tuan and start_date
+                    temp_thoi_khoa_bieu.ngay_thuc_te = start_date + timedelta(days=(["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"].index(ngay_trong_tuan_str) - start_date.weekday()))
+                except ValueError:
+                    form.add_error('ngay_trong_tuan', 'Ngày trong tuần không hợp lệ')
+            
+            # Kiểm tra lựa chọn chỉnh sửa
+            if edit_choice == 'day':
+                temp_thoi_khoa_bieu.lop_hoc_phan = thoi_khoa_bieu.lop_hoc_phan
+            elif edit_choice == 'lop_hoc_phan':
+                temp_thoi_khoa_bieu.thoi_gian = thoi_khoa_bieu.thoi_gian
+
+            conflict_error = check_schedule_conflict(temp_thoi_khoa_bieu)
+            if conflict_error:
+                form.add_error(None, conflict_error)
+            else:
+                temp_thoi_khoa_bieu.save()
+
+                giang_vien_id = temp_thoi_khoa_bieu.lop_hoc_phan.giang_vien.id
+
+                if new_date_str:
+                    new_date = datetime.strptime(new_date_str, '%Y-%m-%d').date()
+                    thoi_khoa_bieu.ngay_thuc_te=new_date
+                    thoi_khoa_bieu.ngay_trong_tuan = new_date.strftime('%A')
+                    thoi_khoa_bieu.save()
+                    return HttpResponseRedirect(f'/TKB_APP/?giang_vien_id={giang_vien_id}&start_date={start_date.strftime("%Y-%m-%d")}')
+                # Điều chỉnh toàn bộ lịch của lớp học phần nếu ngày trong tuần thay đổi
+                if ngay_trong_tuan_str:
+                    related_schedules = ThoiKhoaBieu.objects.filter(lop_hoc_phan=thoi_khoa_bieu.lop_hoc_phan)
+                    for schedule in related_schedules:
+                        schedule.ngay_thuc_te = schedule.ngay_thuc_te + timedelta(days=(["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"].index(ngay_trong_tuan_str) - ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"].index(schedule.ngay_trong_tuan)))
+                        schedule.ngay_trong_tuan = ngay_trong_tuan_str
+                        schedule.save()
+                
+                giang_vien_id = temp_thoi_khoa_bieu.lop_hoc_phan.giang_vien.id
+                
+                # Đảm bảo ngày bắt đầu không vượt ra ngoài tuần hiện tại
+                start_date_of_week = thoi_khoa_bieu.lop_hoc_phan.NgayBatDau - timedelta(days=thoi_khoa_bieu.lop_hoc_phan.NgayBatDau.weekday())
+                if start_date < start_date_of_week:
+                    start_date = start_date_of_week
+                elif start_date > start_date_of_week + timedelta(days=6):
+                    return HttpResponseRedirect(f'/TKB_APP/?giang_vien_id={giang_vien_id}&start_date={start_date.strftime("%Y-%m-%d")}')
+
+                return HttpResponseRedirect(f'/TKB_APP/?giang_vien_id={giang_vien_id}&start_date={start_date.strftime("%Y-%m-%d")}')
+    else:
+        form = ThoiKhoaBieuForm(instance=thoi_khoa_bieu)
+
+    try:
+        ngay_thuc_te = calculate_real_date(start_date, thoi_khoa_bieu.ngay_trong_tuan)
+    except ValueError as e:
+        ngay_thuc_te = None
+        form.add_error(None, str(e))
+
+    return render(request, 'pages/edit_schedule.html', {
+        'form': form,
+        'ngay_trong_tuan': thoi_khoa_bieu.ngay_trong_tuan,
+        'ngay_thuc_te': ngay_thuc_te.strftime('%Y-%m-%d') if ngay_thuc_te else '',
     })
